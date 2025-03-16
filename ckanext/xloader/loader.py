@@ -156,11 +156,17 @@ def load_csv(csv_filepath, resource_id, mimetype='text/csv', logger=None):
         logger.warning('Could not determine delimiter from file, use default ","')
         delimiter = ','
 
-    headers = [
-        header.strip()[:MAX_COLUMN_LENGTH].strip()
-        for header in headers
-        if header.strip()
-    ]
+    updated_headers = []
+    for i, header in enumerate(headers):
+        if header:
+            updated_headers.append(
+                (header).strip()[:MAX_COLUMN_LENGTH].strip()
+            )
+        else:
+            updated_headers.append(
+                "col" + str(i +1)
+            )
+    headers = updated_headers
 
     # TODO worry about csv header name problems
     # e.g. duplicate names
@@ -413,11 +419,17 @@ def load_table(table_filepath, resource_id, mimetype='text/csv', logger=None):
 
     # Strip leading and trailing whitespace, then truncate to maximum length,
     # then strip again in case the truncation exposed a space.
-    headers = [
-        header.strip()[:MAX_COLUMN_LENGTH].strip()
-        for header in headers
-        if header and header.strip()
-    ]
+    updated_headers = []
+    for i, header in enumerate(headers):
+        if header:
+            updated_headers.append(
+                (header).strip()[:MAX_COLUMN_LENGTH].strip()
+            )
+        else:
+            updated_headers.append(
+                "col" + str(i +1)
+            )
+    headers = updated_headers
     header_count = len(headers)
     type_converter = TypeConverter(types=types)
 
@@ -525,7 +537,7 @@ def get_types():
 def encode_headers(headers):
     encoded_headers = []
     for header in headers:
-        if header.isascii():
+        if header and header.isascii():
             try:
                 encoded_headers.append(unidecode(header))
             except AttributeError:
