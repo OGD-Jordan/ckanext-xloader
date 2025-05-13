@@ -540,10 +540,12 @@ def encode_headers(headers):
         if header and header.isascii():
             try:
                 encoded_headers.append(unidecode(header))
+                continue
             except AttributeError:
                 encoded_headers.append(unidecode(str(header)))
-        else:
-            encoded_headers.append(header)
+                continue
+
+        encoded_headers.append(header)
             
     return encoded_headers
 
