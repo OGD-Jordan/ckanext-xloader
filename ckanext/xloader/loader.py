@@ -445,6 +445,7 @@ def load_table(table_filepath, resource_id, mimetype='text/csv', logger=None):
                     # Blank header cells won't generate a column,
                     # so row length won't match column count.
                     if index >= header_count:
+                        continue
                         # error if there's actual data out of bounds, otherwise ignore
                         if cell:
                             raise LoaderError("Found data in column %s but resource only has %s header(s)",
@@ -536,16 +537,17 @@ def get_types():
 
 def encode_headers(headers):
     encoded_headers = []
-    for header in headers:
-        if header and header.isascii():
+    for i, header in enumerate(headers):
+        if header: 
+            #and header.isascii():
             try:
                 encoded_headers.append(unidecode(header))
                 continue
             except AttributeError:
                 encoded_headers.append(unidecode(str(header)))
                 continue
-
-        encoded_headers.append(header)
+        else:
+            encoded_headers.append('Header %s' % str(i+1))
             
     return encoded_headers
 
