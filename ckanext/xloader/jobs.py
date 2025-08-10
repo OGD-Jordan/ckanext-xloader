@@ -525,11 +525,14 @@ def get_resource_and_dataset(resource_id, api_key):
     """
     Gets available information about the resource and its dataset from CKAN
     """
-    context = None
-    user = _get_user_from_key(api_key)
-    if user is not None:
-        context = {'user': user.name}
-
+    # context = None
+    # user = _get_user_from_key(api_key)
+    # if user is not None:
+    #     context = {'user': user.name}
+    context = {
+        'user': _get_user_from_key(api_key).name if api_key else None,
+        'ignore_auth': True
+    }
     res_dict = get_action('resource_show')(context, {'id': resource_id})
     pkg_dict = get_action('package_show')(context, {'id': res_dict['package_id']})
     return res_dict, pkg_dict
