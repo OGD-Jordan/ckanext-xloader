@@ -291,15 +291,15 @@ def _download_resource_data(resource, data, api_key, logger):
         url = url.replace(site_url, private_url)
  
  
-    log.warning("XLOADER_DEBUG1 %s" % url)
-    logger.info("XLOADER_DEBUG1 %s" % url)
-    print("XLOADER_DEBUG1", url)
+    # log.warning("XLOADER_DEBUG1 %s" % url)
+    # logger.info("XLOADER_DEBUG1 %s" % url)
+    # print("XLOADER_DEBUG1", url)
  
     url_parts = urlsplit(url)
  
-    log.warning("XLOADER_DEBUG2 %s" % str(url_parts))
-    logger.info("XLOADER_DEBUG2 %s" % str(url_parts))
-    print("XLOADER_DEBUG2", str(url_parts))
+    # log.warning("XLOADER_DEBUG2 %s" % str(url_parts))
+    # logger.info("XLOADER_DEBUG2 %s" % str(url_parts))
+    # print("XLOADER_DEBUG2", str(url_parts))
     
     scheme = url_parts.scheme
     if scheme not in ('http', 'https', 'ftp'):
