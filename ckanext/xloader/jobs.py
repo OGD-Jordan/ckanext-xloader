@@ -284,6 +284,7 @@ def _download_resource_data(resource, data, api_key, logger):
     '''
     # check scheme
     url = resource.get('url')
+    public_url = url
  
     site_url = config.get('ckan.site_url')
     private_url = config.get('ckan.private_ip', '')
@@ -308,7 +309,7 @@ def _download_resource_data(resource, data, api_key, logger):
         )
 
     # fetch the resource data
-    logger.info('Fetching from: {0}'.format(url))
+    logger.info('Fetching from: {0}'.format(public_url))
     tmp_file = get_tmp_file(url)
     length = 0
     m = hashlib.md5()
