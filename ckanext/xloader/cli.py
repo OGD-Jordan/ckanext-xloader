@@ -3,6 +3,7 @@
 import sys
 import click
 from ckanext.xloader.command import XloaderCmd
+from ckanext.xloader import db
 
 # Click commands for CKAN 2.9 and above
 
@@ -50,6 +51,13 @@ def submit(dataset_spec, y, dry_run, queue, sync):
     if cmd.error_occured:
         print('Finished but saw errors - see above for details')
         sys.exit(1)
+
+from ckan.plugins.toolkit import config
+
+@xloader.command()
+def sanitize_logs_command():
+    db.init(config)
+    db.sanitize_logs()
 
 
 def get_commands():

@@ -470,3 +470,52 @@ def _get_logs(job_id):
         result.pop("job_id")
 
     return results
+
+import sqlalchemy as sa
+from sqlalchemy import func
+import six
+
+def sanitize_logs(job_id=None):
+    """
+    Replace localhost URLs with production URL and remove debug logs.
+    - Replaces: http//127.0.0.1:5001 and http://127.0.0.1:5001 -> https://opendata.gov.jo
+    - Deletes: messages containing XLOADER_DEBUG1 or XLOADER_DEBUG2
+    Optionally restrict to a specific job_id.
+    Returns a dict with counts of updated and deleted rows.
+    """
+    target_url = 'https://opendata.gov.jo'
+    # Handle both the typo (missing colon) and the correct variant
+    old_urls = ['http//127.0.0.1:5001', 'http://127.0.0.1:5001']
+    debug_markers = ['XLOADER_DEBUG1', 'XLOADER_DEBUG2']
+
+    base_cond = sa.true()
+    if job_id is not None:
+        # keep parity with your _get_logs behavior
+        job_id = six.text_type(job_id)
+        base_cond = sa.and_(base_cond, LOGS_TABLE.c.job_id == job_id)
+
+    updated_total = 0
+    deleted_total = 0
+
+    # Use a single transaction
+    with ENGINE.begin() as conn:
+        # Replace URLs in-place using SQL REPLACE
+        for old in old_urls:
+            upd = (
+                LOGS_TABLE.update()
+                .where(sa.and_(base_cond, LOGS_TABLE.c.message.contains(old)))
+                .values(message=func.replace(LOGS_TABLE.c.message, old, target_url))
+            )
+            res = conn.execute(upd)
+            updated_total += (res.rowcount or 0)
+
+        # Delete debug logs
+        del_cond = sa.or_(
+            LOGS_TABLE.c.message.ilike('%XLOADER_DEBUG1%'),
+            LOGS_TABLE.c.message.ilike('%XLOADER_DEBUG2%')
+        )
+        del_stmt = LOGS_TABLE.delete().where(sa.and_(base_cond, del_cond))
+        del_res = conn.execute(del_stmt)
+        deleted_total += (del_res.rowcount or 0)
+
+    return {"updated": updated_total, "deleted": deleted_total}
