@@ -499,6 +499,7 @@ def update_resource(resource, patch_only=False):
     user = get_action('get_site_user')({'ignore_auth': True}, {})
     context = {
         'ignore_auth': True,
+        'avoid_raise': True,
         'user': user['name'],
         'auth_user_obj': None
     }
