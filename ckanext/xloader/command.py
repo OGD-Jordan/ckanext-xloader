@@ -47,7 +47,7 @@ class XloaderCmd:
         # for each package in the package list,
         #   submit each resource w/ _submit_package
         package_list = tk.get_action('package_search')(
-            {'ignore_auth': True}, {'include_private': True, 'rows': 1000})
+            {'ignore_auth': True}, {'include_private': True, 'rows': 1000, 'start': 1000})
         package_list = [pkg['id'] for pkg in package_list['results']]
         print('Processing %d datasets' % len(package_list))
         user = tk.get_action('get_site_user')(
@@ -117,7 +117,7 @@ class XloaderCmd:
             data_dict['ckan_url'] = tk.config.get('ckan.site_url')
             input_dict = {
                 'metadata': data_dict,
-                'api_key': 'TODO'
+                'api_key': tk.config.get('ckanext.xloader.api_token', '')
             }
             logger = logging.getLogger('ckanext.xloader.cli')
             xloader_data_into_datastore_(input_dict, None, logger)

@@ -213,8 +213,10 @@ def xloader_data_into_datastore_(input, job_dict, logger):
             fields=fields,
             resource_id=resource['id'],
             logger=logger)
-        update_resource(resource={'id': resource['id'], 'hash': resource['hash']},
-                        patch_only=True)
+        res = model.Resource.get(resource['id'])
+        if res:
+            res.hash = resource['hash']
+            model.Session.commit()
         logger.info('File Hash updated for resource: %s', resource['hash'])
 
     def tabulator_load():
@@ -230,8 +232,10 @@ def xloader_data_into_datastore_(input, job_dict, logger):
             resource_id=resource['id'], logger=logger)
         set_datastore_active(data, resource, logger)
         logger.info('Finished loading with tabulator')
-        update_resource(resource={'id': resource['id'], 'hash': resource['hash']},
-                        patch_only=True)
+        res = model.Resource.get(resource['id'])
+        if res:
+            res.hash = resource['hash']
+            model.Session.commit()
         logger.info('File Hash updated for resource: %s', resource['hash'])
 
     # Load it
@@ -430,10 +434,14 @@ def get_tmp_file(url):
 
 
 def set_datastore_active(data, resource, logger):
+    res = model.Resource.get(resource['id'])
+    if not res:
+        raise JobError('Resource not found after loading data')
+    
     if data.get('set_url_type', False):
         logger.debug('Setting resource.url_type = \'datapusher\'')
-        resource['url_type'] = 'datapusher'
-        update_resource(resource)
+        res.url_type = 'datapusher'
+        model.Session.commit()
 
     data['datastore_active'] = True
     logger.info('Setting resource.datastore_active = True')
